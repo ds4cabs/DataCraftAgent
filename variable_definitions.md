@@ -1,0 +1,33 @@
+# Clinical Trial Variable Dictionary
+
+| Variable Name              | Type       | Range/Values                                  | Distribution/Percentage                    | Description                                                                 |
+|---------------------------|------------|-----------------------------------------------|--------------------------------------------|-----------------------------------------------------------------------------|
+| `PatientID`               | String     | FBC_001 to FBC_100                            | Sequential                                | Unique identifier for each patient.                                        |
+| `Age`                     | Integer    | 18–70                                         | Normal(μ=45, σ=12)                        | Age in years; inclusion criteria.                                          |
+| `Height`                  | Float      | 140–190 cm                                    | Normal(μ=160, σ=7)                        | Typical adult female height; mean = 160, SD = 7.                           |
+| `Weight`                  | Float      | 40–120 kg                                     | Normal(μ=65, σ=15)                        | Typical adult female weight; mean = 65, SD = 15.                           |
+| `Ethnicity`               | Enum       | Asian, Black, White, Hispanic, Other          | [25%, 15%, 45%, 10%, 5%]                  | Self-reported ethnicity.                                                   |
+| `Diagnosis`               | String     | Breast cancer types                           | [40%, 25%, 20%, 10%, 5%]                  | Disease classification (e.g., recurrent, metastatic).                      |
+| `ECOG`                    | Integer    | 0–2                                           | [60%, 30%, 10%]                           | Performance status score (0 = fully active, 2 = limited self-care).        |
+| `CNS_Lesion_Count`        | Integer    | 0–30                                          | Poisson(λ=2)                              | Number of brain/CNS lesions.                                               |
+| `CNS_Lesion_Status`       | Categorical| Untreated, Stable, Progressing, etc.          | [30%, 40%, 20%, 10%]                      | Lesion progression status from MRI.                                        |
+| `HER2_Status`             | Categorical| Positive, Negative                            | [25%, 75%]                                | HER2 receptor status; affects treatment decisions.                         |
+| `ER_Status`               | Categorical| Positive, Negative                            | [70%, 30%]                                | Estrogen receptor status.                                                  |
+| `PR_Status`               | Categorical| Positive, Negative                            | [60%, 40%]                                | Progesterone receptor status.                                              |
+| `Menopausal_Status`       | Categorical| Premenopausal, Postmenopausal                 | Conditional on Age                        | Affects endocrine therapy planning.                                        |
+| `Tumor_Size`              | Float      | 0.1 – 10 cm                                   | LogNormal(μ=1.5, σ=0.8)                   | Tumor size in centimeters; log-normal distribution.                        |
+| `TNM_Stage`               | Categorical| T0–T4, N0–N3, M0–M1                            | [15%, 25%, 30%, 20%, 10%]                 | Tumor-Node-Metastasis cancer staging.                                      |
+| `Comorbidity_Indicator`   | Boolean    | True, False                                   | [30%, 70%]                                | Indicates significant comorbidities.                                       |
+| `Prior_HER2_Therapy`      | Boolean    | True, False                                   | Conditional on HER2_Status                | Whether prior anti-HER2 therapy was received.                              |
+| `Prior_TKI_Therapy`       | Boolean    | True, False                                   | [20%, 80%]                                | Indicates prior tyrosine kinase inhibitor treatment.                       |
+| `Last_Treatment_Interval_Weeks` | Integer | 4–20                                      | Uniform(4, 20)                            | Number of weeks since last treatment.                                      |
+| `Toxicity_Grade`          | Integer    | 0–1                                           | [70%, 30%]                                | Grade of toxicity from prior treatments.                                   |
+| `WBC`                     | Float      | ≥3.0 ×10⁹/L                                   | Normal(μ=7.5, σ=2.0)                      | White blood cell count; eligibility threshold.                             |
+| `ANC`                     | Float      | ≥1.5 ×10⁹/L                                   | Normal(μ=4.5, σ=1.5)                      | Absolute neutrophil count; must meet minimum.                              |
+| `PLT`                     | Float      | ≥100 ×10⁹/L                                   | Normal(μ=250, σ=75)                       | Platelet count; part of hematologic assessment.                            |
+| `Hemoglobin`              | Float      | ≥9.0 g/dL                                     | Normal(μ=12.5, σ=1.5)                     | Must meet minimum hemoglobin threshold.                                    |
+| `TBIL`                    | Float      | ≤2.5 × ULN                                    | Normal(μ=0.8, σ=0.4)                      | Total bilirubin; used to evaluate liver function.                          |
+| `ALT`                     | Float      | ≤2.5 × ULN (or 5 if liver mets)               | Normal(μ=25, σ=15)                        | Alanine aminotransferase; liver enzyme.                                    |
+| `AST`                     | Float      | ≤2.5 × ULN (or 5 if liver mets)               | Normal(μ=30, σ=18)                        | Aspartate aminotransferase; another liver function marker.                 |
+| `Creatinine_Clearance`    | Float      | ≥60 ml/min                                    | Normal(μ=85, σ=20)                        | Kidney function measurement (eGFR/CrCl).                                   |
+| `Life_Expectancy_Weeks`   | Integer    | ≥12 weeks                                     | Normal(μ=52, σ=26)                        | Expected survival time; minimum required for enrollment.                   |
