@@ -1,14 +1,14 @@
 from flask_cors import CORS
 from flask import Flask, jsonify, request
-from generate_patients import generate_patients_with_gemini
+from generate_patients import generate_breast_cancer_patients
 
 app = Flask(__name__)
 CORS(app)
 
 @app.route('/generate_patients', methods=['GET'])
 def generate_patients():
-    count = int(request.args.get('count', 10))
-    raw_text, patients = generate_patients_with_gemini(count)
+    count = int(request.args.get('count', 100))
+    raw_text, patients = generate_breast_cancer_patients(count)
     if patients and isinstance(patients, list):
         return jsonify(patients)
     else:
