@@ -75,7 +75,13 @@ def generate_breast_cancer_patients(count=100):
             return None, None
     else:
         # For small counts, use original method
-        return generate_batch(count, 1)
+        batch_patients = generate_batch(count, 1)
+        if batch_patients:
+            import json
+            json_text = json.dumps(batch_patients, indent=2)
+            return json_text, batch_patients
+        else:
+            return None, None
 
 def generate_batch(count, start_id):
     """Generate a batch of patients"""
@@ -180,18 +186,32 @@ def generate_batch(count, start_id):
             import json
             patients = json.loads(cleaned)
             
-            # Reorder fields in each patient
+            # Reorder fields in each patient - Clinical Convention Order
             field_order = [
+                # 1. Patient Demographics
                 "PatientID", "Age", "Ethnicity", "Weight", "Height",
-                "Diagnosis", "ECOG", "CNS_Lesion_Count", "CNS_Lesion_Status", 
-                "TNM_Stage", "Comorbidity_Indicator", "HER2_Status", "ER_Status", 
-                "PR_Status", "Menopausal_Status", "Prior_HER2_Therapy", "Prior_TKI_Therapy",
-                "Last_Treatment_Interval_Weeks", "Toxicity_Grade", "Life_Expectancy_Weeks",
-                "Tumor_Size", "WBC", "ANC", "PLT", "Hemoglobin", "TBIL", "ALT", "AST", 
+                
+                # 2. Disease/Clinical Characteristics
+                "Diagnosis", "TNM_Stage", "ECOG", "Tumor_Size",
+                "CNS_Lesion_Count", "CNS_Lesion_Status", "Comorbidity_Indicator",
+                
+                # 3. Biomarkers
+                "HER2_Status", "ER_Status", "PR_Status", "Menopausal_Status",
+                
+                # 4. Treatment History
+                "Prior_HER2_Therapy", "Prior_TKI_Therapy", "Last_Treatment_Interval_Weeks",
+                "Toxicity_Grade",
+                
+                # 5. Outcome Variables
+                "Life_Expectancy_Weeks",
+                
+                # 6. Laboratory Values (Last - Medical Convention)
+                "WBC", "ANC", "PLT", "Hemoglobin", "TBIL", "ALT", "AST", 
                 "Creatinine_Clearance"
             ]
             
             # Reorder each patient's fields
+            print("🔄 Applying field reordering...")
             ordered_patients = []
             for patient in patients:
                 ordered_patient = {}
@@ -205,6 +225,7 @@ def generate_batch(count, start_id):
                         ordered_patient[field] = value
                 ordered_patients.append(ordered_patient)
             
+            print(f"✅ Field reordering completed. First patient fields: {list(ordered_patients[0].keys())[:8]}...")
             return ordered_patients
         except json.JSONDecodeError:
             print("Failed to parse JSON")
