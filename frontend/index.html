@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Virtual Female Breast Cancer Patient Generator</title>
+</head>
+<body>
+  <h1>Virtual Female Breast Cancer Patient Generator</h1>
+  <label>Number to Generate: <input id="count" type="number" value="5" min="1" max="100" placeholder="Enter 1-100"></label>
+  <button onclick="generate_breast_cancer_patients()">Generate</button>
+  <div id="status" style="margin: 10px 0; color: #666;"></div>
+  <button onclick="downloadCSV()">Download CSV</button>
+  <pre id="result"></pre>
+  <script>
+    let lastData = [];
+
+    function generate_breast_cancer_patients() {
+      const count = document.getElementById('count').value;
+      const statusDiv = document.getElementById('status');
+      const resultDiv = document.getElementById('result');
+      
+      // Validate input
+      if (!count || count < 1 || count > 100) {
+        statusDiv.textContent = 'Please enter a number between 1 and 100';
+        statusDiv.style.color = 'red';
+        return;
+      }
+      
+      // Show loading status
+      statusDiv.textContent = `Generating ${count} patients... Please wait.`;
+      statusDiv.style.color = '#666';
+      resultDiv.textContent = '';
+      
+      fetch(`http://127.0.0.1:5001/generate_patients?count=${count}`)
+        .then(response => response.json())
+        .then(data => {
+          lastData = data;
+          statusDiv.textContent = `Successfully generated ${data.length} patients!`;
+          statusDiv.style.color = 'green';
+          
+          // Reorder fields for display consistency
+          const fieldOrder = [
+              "PatientID", "Age", "Ethnicity", "Weight", "Height",
+              "Diagnosis", "TNM_Stage", "ECOG", "Tumor_Size",
+              "CNS_Lesion_Count", "CNS_Lesion_Status", "Comorbidity_Indicator",
+              "HER2_Status", "ER_Status", "PR_Status", "Menopausal_Status",
+              "Prior_HER2_Therapy", "Prior_TKI_Therapy", "Last_Treatment_Interval_Weeks",
+              "Toxicity_Grade", "Life_Expectancy_Weeks",
+              "WBC", "ANC", "PLT", "Hemoglobin", "TBIL", "ALT", "AST", 
+              "Creatinine_Clearance"
+          ];
+          
+          const orderedData = data.map(patient => {
+              const ordered = {};
+              fieldOrder.forEach(field => {
+                  if (patient.hasOwnProperty(field)) {
+                      ordered[field] = patient[field];
+                  }
+              });
+              // Add any remaining fields
+              Object.keys(patient).forEach(key => {
+                  if (!ordered.hasOwnProperty(key)) {
+                      ordered[key] = patient[key];
+                  }
+              });
+              return ordered;
+          });
+          
+          resultDiv.textContent = JSON.stringify(orderedData, null, 2);
+        })
+        .catch(error => {
+          statusDiv.textContent = 'Error: ' + error;
+          statusDiv.style.color = 'red';
+          resultDiv.textContent = '';
+        });
+    }
+
+    function downloadCSV() {
+    console.log(lastData); // Debug use
+
+    if (!lastData.length) {
+        alert("Please generate data first!");
+        return;
+    }
+    
+    // Define the correct medical field order - same as backend
+    const fieldOrder = [
+        // 1. Patient Demographics
+        "PatientID", "Age", "Ethnicity", "Weight", "Height",
+        
+        // 2. Disease/Clinical Characteristics
+        "Diagnosis", "TNM_Stage", "ECOG", "Tumor_Size",
+        "CNS_Lesion_Count", "CNS_Lesion_Status", "Comorbidity_Indicator",
+        
+        // 3. Biomarkers
+        "HER2_Status", "ER_Status", "PR_Status", "Menopausal_Status",
+        
+        // 4. Treatment History
+        "Prior_HER2_Therapy", "Prior_TKI_Therapy", "Last_Treatment_Interval_Weeks",
+        "Toxicity_Grade",
+        
+        // 5. Outcome Variables
+        "Life_Expectancy_Weeks",
+        
+        // 6. Laboratory Values (Last - Medical Convention)
+        "WBC", "ANC", "PLT", "Hemoglobin", "TBIL", "ALT", "AST", 
+        "Creatinine_Clearance"
+    ];
+    
+    // Use ordered headers, include any missing fields at the end
+    const availableFields = Object.keys(lastData[0]);
+    const headers = fieldOrder.filter(field => availableFields.includes(field));
+    
+    // Add any fields not in our predefined order
+    availableFields.forEach(field => {
+        if (!headers.includes(field)) {
+            headers.push(field);
+        }
+    });
+    
+    const csvRows = [
+        headers.join(','), // Header
+        ...lastData.map(row => headers.map(h => `"${row[h]}"`).join(','))
+    ];
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'patients.csv';
+    document.body.appendChild(a); // Key: Add to DOM
+    a.click();
+    document.body.removeChild(a); // Key: Remove
+    URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
