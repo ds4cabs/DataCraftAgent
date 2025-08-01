@@ -78,7 +78,7 @@ DataCraftAgent/
 
 1. **Install dependencies** (recommended: use a virtual environment)
    ```bash
-   pip install flask flask-cors google-generativeai pandas numpy
+   pip3 install flask flask-cors google-generativeai pandas numpy
    ```
 
 2. **Set your Google Gemini API Key**
