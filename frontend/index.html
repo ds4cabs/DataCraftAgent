@@ -3,149 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <title>Virtual Female Breast Cancer Patient Generator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f5f5f5;
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background-color: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    h1 {
-      color: #333;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    
-    .controls {
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    
-    .controls label {
-      margin-right: 10px;
-      font-weight: bold;
-    }
-    
-    .controls input {
-      padding: 5px;
-      margin-right: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    
-    button {
-      padding: 8px 16px;
-      margin: 5px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    
-    button:first-of-type {
-      background-color: #007bff;
-      color: white;
-    }
-    
-    button:first-of-type:hover {
-      background-color: #0056b3;
-    }
-    
-    button:last-of-type {
-      background-color: #28a745;
-      color: white;
-    }
-    
-    button:last-of-type:hover {
-      background-color: #1e7e34;
-    }
-    
-    #status {
-      margin: 10px 0;
-      text-align: center;
-      font-weight: bold;
-    }
-    
-    .table-container {
-      overflow-x: auto;
-      margin-top: 20px;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 12px;
-    }
-    
-    th, td {
-      padding: 8px;
-      text-align: left;
-      border: 1px solid #ddd;
-      white-space: nowrap;
-    }
-    
-    th {
-      background-color: #f8f9fa;
-      font-weight: bold;
-      color: #333;
-      position: sticky;
-      top: 0;
-    }
-    
-    tr:nth-child(even) {
-      background-color: #f8f9fa;
-    }
-    
-    tr:hover {
-      background-color: #e9ecef;
-    }
-    
-    .note {
-      background-color: #d1ecf1;
-      border: 1px solid #bee5eb;
-      color: #0c5460;
-      padding: 10px;
-      border-radius: 4px;
-      margin-top: 15px;
-      text-align: center;
-    }
-    
-    .summary {
-      background-color: #f8f9fa;
-      border: 1px solid #dee2e6;
-      padding: 10px;
-      border-radius: 4px;
-      margin-bottom: 15px;
-    }
-  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Virtual Female Breast Cancer Patient Generator</h1>
-    
-    <div class="controls">
-      <label>Number to Generate: 
-        <input id="count" type="number" value="5" min="1" max="100" placeholder="Enter 1-100">
-      </label>
-      <button onclick="generate_breast_cancer_patients()">Generate</button>
-      <button onclick="downloadCSV()">Download CSV</button>
-    </div>
-    
-    <div id="status" style="color: #666;"></div>
-    
-    <div id="result"></div>
-  </div>
-
+  <h1>Virtual Female Breast Cancer Patient Generator</h1>
+  <label>Number to Generate: <input id="count" type="number" value="5" min="1" max="100" placeholder="Enter 1-100"></label>
+  <button onclick="generate_breast_cancer_patients()">Generate</button>
+  <div id="status" style="margin: 10px 0; color: #666;"></div>
+  <button onclick="downloadCSV()">Download CSV</button>
+  <pre id="result"></pre>
   <script>
     let lastData = [];
 
@@ -164,7 +29,7 @@
       // Show loading status
       statusDiv.textContent = `Generating ${count} patients... Please wait.`;
       statusDiv.style.color = '#666';
-      resultDiv.innerHTML = '';
+      resultDiv.textContent = '';
       
       fetch(`http://127.0.0.1:5001/generate_patients?count=${count}`)
         .then(response => response.json())
@@ -201,77 +66,13 @@
               return ordered;
           });
           
-          // Display data in table format
-          displayDataAsTable(orderedData);
+          resultDiv.textContent = JSON.stringify(orderedData, null, 2);
         })
         .catch(error => {
           statusDiv.textContent = 'Error: ' + error;
           statusDiv.style.color = 'red';
-          resultDiv.innerHTML = '';
+          resultDiv.textContent = '';
         });
-    }
-
-    function displayDataAsTable(data) {
-      const resultDiv = document.getElementById('result');
-      
-      if (!data || data.length === 0) {
-        resultDiv.innerHTML = '<p>No data to display.</p>';
-        return;
-      }
-      
-      // Show summary
-      const displayCount = Math.min(10, data.length);
-      const summaryHtml = `
-        <div class="summary">
-          <strong>Generated ${data.length} patients</strong> - 
-          Showing first ${displayCount} patients below. 
-          ${data.length > 10 ? 'Download CSV to see the complete dataset.' : ''}
-        </div>
-      `;
-      
-      // Get headers from first patient
-      const headers = Object.keys(data[0]);
-      
-      // Create table HTML
-      let tableHtml = `
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                ${headers.map(header => `<th>${header}</th>`).join('')}
-              </tr>
-            </thead>
-            <tbody>
-      `;
-      
-      // Add rows (limit to first 10 patients)
-      const dataToShow = data.slice(0, displayCount);
-      dataToShow.forEach(patient => {
-        tableHtml += '<tr>';
-        headers.forEach(header => {
-          tableHtml += `<td>${patient[header] || ''}</td>`;
-        });
-        tableHtml += '</tr>';
-      });
-      
-      tableHtml += `
-            </tbody>
-          </table>
-        </div>
-      `;
-      
-      // Add note if there are more patients
-      let noteHtml = '';
-      if (data.length > displayCount) {
-        noteHtml = `
-          <div class="note">
-            <strong>Note:</strong> This table shows only the first ${displayCount} patients out of ${data.length} generated. 
-            Click "Download CSV" to get the complete dataset with all ${data.length} patients.
-          </div>
-        `;
-      }
-      
-      resultDiv.innerHTML = summaryHtml + tableHtml + noteHtml;
     }
 
     function downloadCSV() {
